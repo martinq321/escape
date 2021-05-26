@@ -44,12 +44,27 @@ vectorplot[t_, m_, n_] := Module[{list},
        Nearest[pl[[All, 1]][[t]], pl[[All, 2]][[t]], 20]]; 
    Graphics[{Nest[Lighter, Red, 3], 
      Line[Table[pl[[All, 2]][[a]], {a, t - n, t, 1}]], 
-     SplineDegree -> 0, PointSize[.02], Red, Point[pl[[All, 2]][[t]]],
+     PointSize[.02], Red, Point[pl[[All, 2]][[t]]],
       Nest[Lighter, Red, 3], 
      Point[Table[pl[[All, 2]][[a]], {a, t - n, t - 1, 1}]], 
      Nest[Lighter, Blue, 3], Point[list[[All, m + 1]]], Line /@ list},
      Frame -> True]];
 vectorplot[t_] := vectorplot[t, 1, 4];
+straightline[max_, maxa_] := Module[{},
+   tables2 = Table[{4 t, .5}, {t, 0, max, .1}];
+   tables1 = 
+    FoldList[newptRadius[#, tables2[[#2]], #2] &, #, 
+       Range[Floor[max/.1]]] & /@ 
+     Flatten[Table[{a, b}, {a, 0, maxa}, {b, 0, 1}], 1];
+   ed1 = EuclideanDistance[#, #2] & @@@ Drop[#, -10] &@
+     Thread@{Take[tables2, Length@tables1], 
+       Table[Nearest[tables1[[t]], tables2[[t]]][[1]], {t, 
+         Length@tables1}]};
+   Show[ListLinePlot[{Thread@{Range[Length@ed1], ed1}, 
+      Thread@{Range[Length@ed1][[4 ;; -1 ;; 4]], 
+        ed1[[4 ;; -1 ;; 4]]}}], 
+    Plot[{, 1/(x/9 + 13)}, {x, 0, Length@ed1}]]];
+straightline[] := straightline[50, 50];
 (**)
 (*pl = pursuitlattice[{-1.95, 1.55}, 
     Flatten[Table[{a, b}, {a, -20, 50}, {b, -10, 30}], 1], 4, 
@@ -62,3 +77,7 @@ vectorplot[t_] := vectorplot[t, 1, 4];
   Axes -> False, PlotStyle -> {{Pink, PointSize[.01]}, {RGBColor[.3, .5, .7], 
      PointSize[.01]}}, PlotRange -> {{10, 25}, {5, 10}}], {{pt, 200}, 
   200, 250, 1}, AnimationRate -> 5]*)
+  (*straightline[]*)
+  (*Animate[Show[ListPlot[Flatten[{#[[pt]]}&/@tables1,1],PlotStyle\
+\[Rule]{Pink,PointSize[.01]}],ListPlot[{tables2[[pt]]}]],{{pt,1},1,\
+Floor[40/.1],1},AnimationRate\[Rule]5]*)
