@@ -1,0 +1,70 @@
+escape[points_, pt_, n_, incr_] := 
+ First[MaximalBy[pt + # & /@ (incr*CirclePoints[n]), 
+   Min[EuclideanDistance[First[Nearest[points][#]], #], 
+     EuclideanDistance[#, 
+       RegionNearest[
+         RegionBoundary[
+          Circle[{pt[[1]], pt[[2]]}, incr](*Rectangle[{-#,-#},{#,#}]&[
+          3]*)]][#]] &] &]]; 
+escape[points_, pt_, incr_] := escape[points, pt, 40, incr];
+escape[points_, pt_] := escape[points, pt, 40, .2];
+newptRadius[pa_, pb_, time_, incr_] := 
+  Module[{pnew, xnew, ynew, pab, radius, dist}, 
+   dist = EuclideanDistance[pa, pb];
+   radius = If[dist >= incr, incr, dist];
+   pab = {pb[[1]] - pa[[1]], pb[[2]] - pa[[2]]};
+   xnew = 
+    If[pab[[1]] == 0, pa[[1]], 
+     Sign[pab[[1]]] radius/
+        Sqrt[1 + (pa[[2]] - pb[[2]])^2/(pa[[1]] - pb[[1]])^2] + 
+      pa[[1]]];
+   ynew = 
+    If[pab[[1]] == 0, pa[[2]] + Sign[pab[[2]]] radius, 
+     pa[[2]] + (xnew - pa[[1]]) #[[2]]/#[[1]] &@pab];
+   pnew = {xnew, ynew}];
+newptRadius[pa_, pb_, time_] := newptRadius[pa, pb, time, .1];
+npr[n_, e_, incr_] := newptRadius[#, e, 1, incr] & /@ n;
+pursuitlattice[startpoint_, latticelist_, escapeespeed_, iterations_, 
+   incriment_] := Module[{},
+   NestList[{npr[#[[1]], #[[2]], incriment], 
+      escape[#[[1]], #[[2]], 
+       escapeespeed *incriment]} &, {latticelist, startpoint}, 
+    iterations]];
+escapeedist[calculationlist_] := 
+  EuclideanDistance[#[[1]], #[[2]]] & /@ 
+   Thread[{calculationlist[[All, 2]], 
+     First /@ 
+      Table[Nearest[calculationlist[[All, 1]][[t]], 
+        calculationlist[[All, 2]][[t]]], {t, 
+        Length@calculationlist}]}];
+vectorplot[t_, m_, n_] := Module[{list},
+   list = 
+    Thread[Table[Part[pl[[All, 1]][[a]], #], {a, t - m, t, 1}]] &@
+     Flatten[Position[pl[[All, 1]][[t]], #] & /@ 
+       Nearest[pl[[All, 1]][[t]], pl[[All, 2]][[t]], 20]]; 
+   Graphics[{Nest[Lighter, Red, 3], 
+     Line[Table[pl[[All, 2]][[a]], {a, t - n, t, 1}]], 
+     SplineDegree -> 0, PointSize[.02], Red, Point[pl[[All, 2]][[t]]],
+      Nest[Lighter, Red, 3], 
+     Point[Table[pl[[All, 2]][[a]], {a, t - n, t - 1, 1}]], 
+     Nest[Lighter, Blue, 3], Point[list[[All, m + 1]]], Line /@ list},
+     Frame -> True]];
+vectorplot[t_] := vectorplot[t, 1, 4];
+
+(*
+"test ~ 30secs on my machine"
+pl = pursuitlattice[{-1.95, 1.55}, 
+    Flatten[Table[{a, b}, {a, -20, 50}, {b, -10, 30}], 1], 4, 
+    250, .1]; // Timing
+ed = escapeedist[pl];
+ListLinePlot[pl[[All, 2]], AspectRatio -> Automatic]
+ListPlot[Last@pl[[All, 1]], AspectRatio -> Automatic, PlotRange -> All]
+ListLinePlot[ed]
+Min[ed]
+vectorplot[198]
+Animate[ListPlot[{#, {#2}} & @@ pl[[pt]], AspectRatio -> Automatic, 
+  Axes -> False, 
+  PlotStyle -> {{Pink, PointSize[.01]}, {RGBColor[.3, .5, .7], 
+     PointSize[.01]}}, PlotRange -> {{10, 25}, {5, 10}}], {{pt, 200}, 
+  200, 250, 1}, AnimationRate -> 5]
+*)
