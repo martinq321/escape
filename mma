@@ -50,28 +50,15 @@ vectorplot[t_, m_, n_] := Module[{list},
      Nest[Lighter, Blue, 3], Point[list[[All, m + 1]]], Line /@ list},
      Frame -> True]];
 vectorplot[t_] := vectorplot[t, 1, 4];
-
-(*
-"test ~ 30secs on my machine"
-pl = pursuitlattice[{-1.95, 1.55}, 
+(**)
+(*pl = pursuitlattice[{-1.95, 1.55}, 
     Flatten[Table[{a, b}, {a, -20, 50}, {b, -10, 30}], 1], 4, 
-    250, .1]; // Timing
-    
-ed = escapeedist[pl];
-
-ListLinePlot[pl[[All, 2]], AspectRatio -> Automatic]
-
-ListPlot[Last@pl[[All, 1]], AspectRatio -> Automatic, PlotRange -> All]
-
-ListLinePlot[ed]
-
-Min[ed]
-
-vectorplot[198]
-
-Animate[ListPlot[{#, {#2}} & @@ pl[[pt]], AspectRatio -> Automatic, 
-  Axes -> False, 
-  PlotStyle -> {{Pink, PointSize[.01]}, {RGBColor[.3, .5, .7], 
+    250, .1]; // Timing*)
+(*ListLinePlot[pl[[All, 2]], AspectRatio -> Automatic]*)
+(*ListPlot[Last@pl[[All, 1]], AspectRatio -> Automatic, PlotRange -> All]*)
+(*ed = escapeedist[pl];{ListLinePlot[ed],Min[ed]}*)
+(*vectorplot[198]*)
+(*Animate[ListPlot[{#, {#2}} & @@ pl[[pt]], AspectRatio -> Automatic, 
+  Axes -> False, PlotStyle -> {{Pink, PointSize[.01]}, {RGBColor[.3, .5, .7], 
      PointSize[.01]}}, PlotRange -> {{10, 25}, {5, 10}}], {{pt, 200}, 
-  200, 250, 1}, AnimationRate -> 5]
-*)
+  200, 250, 1}, AnimationRate -> 5]*)
